@@ -26,7 +26,7 @@ const ProfileSetup = () => {
       try {
         const token = localStorage.getItem('token');
         // Get generic dashboard data to fill name
-        const res = await axios.get('http://localhost:8000/api/dashboard', {
+        const res = await axios.get('https://wellness-ai-platform.onrender.com/api/dashboard', {
           headers: { Authorization: `Bearer ${token}` }
         });
         
@@ -64,7 +64,7 @@ const ProfileSetup = () => {
       const token = localStorage.getItem('token');
       
       // Send the profile data to backend
-      await axios.post('http://localhost:8000/api/profile', {
+      await axios.post('https://wellness-ai-platform.onrender.com/api/profile', {
         age: parseInt(formData.age),
         height_cm: parseFloat(formData.height_cm),
         weight_kg: parseFloat(formData.weight_kg),
