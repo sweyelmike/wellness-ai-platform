@@ -26,13 +26,13 @@ const Chat = () => {
     try {
       const token = localStorage.getItem('token');
       // Fetch History
-      const res = await axios.get('http://localhost:8000/api/history', {
+      const res = await axios.get('http://https://wellness-ai-platform.onrender.com/api/history', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setMessages(res.data);
       
       // Fetch Profile for Name
-      const profRes = await axios.get('http://localhost:8000/api/dashboard', {
+      const profRes = await axios.get('http://https://wellness-ai-platform.onrender.com/api/dashboard', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUserName(profRes.data.user_name);
@@ -54,7 +54,7 @@ const Chat = () => {
 
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post('http://localhost:8000/api/chat', 
+      const res = await axios.post('http://https://wellness-ai-platform.onrender.com/api/chat', 
         { message: textToSend },
         { headers: { Authorization: `Bearer ${token}` } }
       );
