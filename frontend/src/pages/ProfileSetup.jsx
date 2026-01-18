@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import { FaCamera, FaSave, FaUserCircle } from 'react-icons/fa';
+// Import the helper functions from your fixed api.js
+import { getDashboard, saveProfile } from '../api';
 
 const ProfileSetup = () => {
   const navigate = useNavigate();
@@ -14,21 +15,17 @@ const ProfileSetup = () => {
     gender: 'Not Specified',
     activity_level: 'Moderate',
     goal: 'General Wellness',
-    name: 'User' // Added name field
+    name: 'User'
   });
 
-  // Mock Profile Picture State (In a real app, you'd upload this to a server)
+  // Mock Profile Picture State
   const [profilePic, setProfilePic] = useState(null);
 
   useEffect(() => {
-    // 1. Fetch existing data when page loads
+    // 1. Fetch existing data using the API function
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem('token');
-        // Get generic dashboard data to fill name
-        const res = await axios.get('https://wellness-ai-platform.onrender.com/api/dashboard', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const res = await getDashboard();
         
         // Pre-fill form if data exists
         if (res.data.profile) {
@@ -52,7 +49,6 @@ const ProfileSetup = () => {
 
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      // Create a fake local URL to show the image immediately
       setProfilePic(URL.createObjectURL(e.target.files[0]));
     }
   };
@@ -61,18 +57,17 @@ const ProfileSetup = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      
-      // Send the profile data to backend
-      await axios.post('https://wellness-ai-platform.onrender.com/api/profile', {
+      // 2. Send the profile data using the API function
+      // (This automatically handles the URL and Token)
+      await saveProfile({
         age: parseInt(formData.age),
         height_cm: parseFloat(formData.height_cm),
         weight_kg: parseFloat(formData.weight_kg),
         gender: formData.gender,
         activity_level: formData.activity_level,
         goal: formData.goal
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
+        // Note: 'name' is usually handled by the auth system, 
+        // but if your backend supports updating it here, you can add it.
       });
 
       // Redirect to Dashboard after saving
@@ -117,18 +112,18 @@ const ProfileSetup = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Name (Read Only for now as it comes from Auth) */}
+              {/* Name */}
               <div>
                 <label className="block text-gray-600 text-sm font-bold mb-2">Full Name</label>
                 <input 
-  type="text" 
-  name="name"
-  value={formData.name}
-  onChange={handleChange} // <--- Added this so you can type!
-  className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition"
-  placeholder="Your Name"
-  required
-/>
+                  type="text" 
+                  name="name"
+                  value={formData.name}
+                  onChange={handleChange} 
+                  className="w-full p-3 border border-gray-200 rounded-xl focus:outline-none focus:border-blue-500 transition"
+                  placeholder="Your Name"
+                  required
+                />
               </div>
 
               {/* Age */}

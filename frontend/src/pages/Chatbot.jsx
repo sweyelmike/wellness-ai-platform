@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
-import { FaPaperPlane, FaRobot, FaUser, FaArrowLeft, FaMagic, FaHeartbeat, FaUtensils } from 'react-icons/fa';
+import { FaPaperPlane, FaRobot, FaMagic, FaHeartbeat, FaUtensils } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
+// Import the helper functions from your fixed api.js
+import { getChatHistory, getDashboard, chatWithAI } from '../api';
 
 const Chat = () => {
   const [messages, setMessages] = useState([]);
@@ -14,8 +15,6 @@ const Chat = () => {
 
   useEffect(() => {
     fetchHistory();
-    // Get user name from local storage or API if available, quick fix for greeting
-    // In a real app, you'd fetch the user profile again or store it in Context
   }, []);
 
   useEffect(() => {
@@ -24,21 +23,18 @@ const Chat = () => {
 
   const fetchHistory = async () => {
     try {
-      const token = localStorage.getItem('token');
-      // Fetch History
-      const res = await axios.get('http://https://wellness-ai-platform.onrender.com/api/history', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      // 1. Fetch History using the API function
+      const res = await getChatHistory();
       setMessages(res.data);
       
-      // Fetch Profile for Name
-      const profRes = await axios.get('http://https://wellness-ai-platform.onrender.com/api/dashboard', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      // 2. Fetch Profile Name using the API function
+      const profRes = await getDashboard();
       setUserName(profRes.data.user_name);
 
     } catch (err) {
       console.error("Failed to load data");
+      // Optional: if token is invalid, redirect to login
+      // navigate('/'); 
     }
   };
 
@@ -47,17 +43,15 @@ const Chat = () => {
     const textToSend = customText || input;
     if (!textToSend.trim()) return;
 
+    // Add User Message to UI instantly
     const userMsg = { role: 'user', content: textToSend };
     setMessages(prev => [...prev, userMsg]);
     setInput("");
     setLoading(true);
 
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.post('http://https://wellness-ai-platform.onrender.com/api/chat', 
-        { message: textToSend },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      // 3. Send Message using the API function
+      const res = await chatWithAI(textToSend);
       
       const aiMsg = { role: 'model', content: res.data.response };
       setMessages(prev => [...prev, aiMsg]);
@@ -73,11 +67,11 @@ const Chat = () => {
       
       <div className="flex-1 ml-20 md:ml-64 flex flex-col h-screen relative bg-white">
         
-        {/* Chat Area - Centered Design */}
+        {/* Chat Area */}
         <div className="flex-1 overflow-y-auto p-4 md:p-10">
           
           {messages.length === 0 ? (
-            // Empty State (Matches the "Ready to Achieve" image)
+            // Empty State
             <div className="h-full flex flex-col items-center justify-center text-center opacity-0 animate-fade-in" style={{animation: 'fadeIn 0.5s forwards', opacity: 1}}>
               <div className="w-24 h-24 bg-gradient-to-tr from-blue-400 to-purple-500 rounded-full flex items-center justify-center mb-6 shadow-xl">
                  <FaRobot className="text-white text-4xl" />
@@ -117,7 +111,7 @@ const Chat = () => {
           )}
         </div>
 
-        {/* Floating Input Area (Matches the "Upgrade Now" bar style) */}
+        {/* Floating Input Area */}
         <div className="absolute bottom-6 left-0 right-0 px-4 flex justify-center">
           <form onSubmit={sendMessage} className="w-full max-w-3xl bg-white/80 backdrop-blur-md border border-gray-200 shadow-2xl rounded-full p-2 flex items-center">
             <input

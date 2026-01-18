@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from '../components/Sidebar';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
-import { FaFire, FaHeart, FaMoon, FaSearch, FaBell, FaUserCircle } from 'react-icons/fa';
+import { FaFire, FaHeart, FaMoon, FaSearch, FaBell } from 'react-icons/fa';
+// Import the helper function from your fixed api.js
+import { getDashboard } from '../api';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
 
@@ -13,7 +14,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Mock Calendar Data for the "Calendar" requirement
+  // Mock Calendar Data
   const upcomingAppointments = [
     { date: "Jan 20", title: "General Checkup", time: "10:00 AM" },
     { date: "Jan 24", title: "Dentist", time: "2:30 PM" }
@@ -22,13 +23,13 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get('http://localhost:8000/api/dashboard', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        // Use the API function (It handles the URL and Token automatically)
+        const res = await getDashboard();
         setData(res.data);
       } catch (err) {
-        console.error(err);
+        console.error("Failed to load dashboard data", err);
+        // Optional: Redirect to login if token is invalid
+        // navigate('/');
       } finally {
         setLoading(false);
       }
@@ -42,15 +43,15 @@ const Dashboard = () => {
   const heartRate = data?.metrics?.heart_rate || 0;
   const sleep = data?.metrics?.sleep_hours || 0;
 
-  // Chart Configuration (Matches the blue line graph in image)
+  // Chart Configuration
   const chartData = {
     labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
     datasets: [{
       label: 'Heart Rate',
-      data: [70, 72, 68, 74, 71, 75, heartRate], // Uses real heart rate as last point
+      data: [70, 72, 68, 74, 71, 75, heartRate], 
       borderColor: '#3B82F6',
       backgroundColor: 'rgba(59, 130, 246, 0.1)',
-      tension: 0.4, // Makes the line curved/smooth
+      tension: 0.4,
       fill: true,
     }]
   };
@@ -103,7 +104,6 @@ const Dashboard = () => {
                 <p className="text-blue-100 mb-6">It's time for your daily wellness checkup.</p>
                 <button onClick={() => navigate('/chat')} className="bg-white text-blue-600 px-6 py-2 rounded-full font-bold hover:bg-blue-50 transition">Check Now</button>
               </div>
-              {/* Decorative Circle */}
               <div className="absolute -right-10 -bottom-20 w-64 h-64 bg-blue-500 rounded-full opacity-50"></div>
             </div>
 

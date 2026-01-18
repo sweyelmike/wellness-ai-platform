@@ -1,7 +1,11 @@
 import axios from 'axios';
 
-const API = axios.create({ baseURL: 'http://localhost:8000' });
+// 1. Point to your LIVE Backend (Render)
+const API = axios.create({
+  baseURL: 'https://wellness-ai-platform.onrender.com',
+});
 
+// 2. Automatically add the Token to every request (if logged in)
 API.interceptors.request.use((req) => {
   const token = localStorage.getItem('token');
   if (token) {
@@ -10,11 +14,12 @@ API.interceptors.request.use((req) => {
   return req;
 });
 
-export const login = (data) => API.post('/auth/login', data);
+// 3. Define all your API calls here
 export const register = (data) => API.post('/auth/register', data);
-export const saveProfile = (data) => API.post('/api/profile', data);
+export const login = (data) => API.post('/auth/login', data);
 export const getDashboard = () => API.get('/api/dashboard');
-export const sendChat = (msg) => API.post('/api/chat', { message: msg });
-export const getHistory = () => API.get('/api/history');
+export const saveProfile = (data) => API.post('/api/profile', data);
+export const chatWithAI = (message) => API.post('/api/chat', { message });
+export const getChatHistory = () => API.get('/api/history');
 
 export default API;
